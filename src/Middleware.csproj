@@ -1,0 +1,59 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <OutputType>Library</OutputType>
+    
+    <!-- Package Metadata -->
+    <PackageId>Middleware</PackageId>
+    <Version>1.0.0</Version>
+    <AssemblyVersion>$(Version)</AssemblyVersion>
+    <FileVersion>$(Version)</FileVersion>
+    <Authors>Wei Li</Authors>
+    <Company>Wei Li</Company>
+    <Product>ASP.NET Core Middleware Library</Product>
+    <Description>Production-ready ASP.NET Core middleware components for API key authentication, correlation ID tracking, and global exception handling with comprehensive security features.</Description>
+    <Copyright>Copyright © 2025 Wei Li</Copyright>
+    <PackageProjectUrl>https://github.com/jimleeii/middleware</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/jimleeii/middleware</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>aspnetcore;middleware;authentication;apikey;correlation;exception-handling;security;logging;serilog</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReleaseNotes>
+      Initial release (v1.0.0):
+      - API Key authentication with rate limiting and constant-time comparison
+      - Correlation ID middleware with security validation
+      - Global exception handler with custom exception types
+      - Configuration validation and startup checks
+      - Comprehensive logging with Serilog integration
+    </PackageReleaseNotes>
+    
+    <!-- Build Configuration -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    
+    <!-- NuGet Package Settings -->
+    <IsPackable>true</IsPackable>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <PublishRepositoryUrl>false</PublishRepositoryUrl>
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Serilog.AspNetCore" Version="8.0.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="5.0.1" />
+    <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+</Project>
