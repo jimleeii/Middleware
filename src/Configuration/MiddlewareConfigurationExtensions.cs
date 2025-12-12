@@ -21,7 +21,7 @@ public static class MiddlewareConfigurationExtensions
     {
         // Configure and validate middleware settings
         services.Configure<MiddlewareSettings>(configuration.GetSection(MiddlewareSettings.SectionName));
-        
+
         // Add options validation
         services.AddOptions<MiddlewareSettings>()
             .BindConfiguration(MiddlewareSettings.SectionName)
@@ -93,7 +93,7 @@ public static class MiddlewareConfigurationExtensions
         {
             settings.Authentication.Validate();
             if (logger.IsEnabled(LogLevel.Information))
-            {                
+            {
                 logger.LogInformation(
                     "Authentication configured with {MaxAttempts} max attempts and {WindowMinutes} minute rate limit window",
                     settings.Authentication.MaxFailedAttempts,

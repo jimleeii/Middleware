@@ -79,8 +79,8 @@ public class AuthenticationSettingsTests
         // Arrange
         var settings = new AuthenticationSettings
         {
-            ApiKeys = new[] 
-            { 
+            ApiKeys = new[]
+            {
                 "valid-api-key-1234567890",
                 "another-valid-key-9876543210",
                 "third-secure-key-abcdefghijk"
@@ -294,7 +294,7 @@ public class CorrelationIdMiddlewareTests
         // Arrange
         var context = new DefaultHttpContext();
         var nextCalled = false;
-        
+
         var middleware = new CorrelationIdMiddleware(
             _ => { nextCalled = true; return Task.CompletedTask; },
             _mockLogger.Object,
@@ -318,7 +318,7 @@ public class CorrelationIdMiddlewareTests
         const string providedId = "test-correlation-12345";
         var context = new DefaultHttpContext();
         context.Request.Headers["X-Correlation-Id"] = providedId;
-        
+
         var middleware = new CorrelationIdMiddleware(
             _ => Task.CompletedTask,
             _mockLogger.Object,
@@ -340,7 +340,7 @@ public class CorrelationIdMiddlewareTests
         var context = new DefaultHttpContext();
         context.Request.Headers["X-Correlation-Id"] = maliciousId;
         context.Connection.RemoteIpAddress = System.Net.IPAddress.Parse("192.168.1.100");
-        
+
         var middleware = new CorrelationIdMiddleware(
             _ => Task.CompletedTask,
             _mockLogger.Object,
@@ -368,7 +368,7 @@ public class CorrelationIdMiddlewareTests
         var context = new DefaultHttpContext();
         context.Request.Headers["X-Correlation-Id"] = threatPayload;
         context.Connection.RemoteIpAddress = System.Net.IPAddress.Parse("192.168.1.100");
-        
+
         var middleware = new CorrelationIdMiddleware(
             _ => Task.CompletedTask,
             _mockLogger.Object,
@@ -391,7 +391,7 @@ public class CorrelationIdMiddlewareTests
         var longId = new string('a', 1000);
         var context = new DefaultHttpContext();
         context.Request.Headers["X-Correlation-Id"] = longId;
-        
+
         var middleware = new CorrelationIdMiddleware(
             _ => Task.CompletedTask,
             _mockLogger.Object,
@@ -413,7 +413,7 @@ public class CorrelationIdMiddlewareTests
         const string shortId = "abc";
         var context = new DefaultHttpContext();
         context.Request.Headers["X-Correlation-Id"] = shortId;
-        
+
         var middleware = new CorrelationIdMiddleware(
             _ => Task.CompletedTask,
             _mockLogger.Object,
@@ -435,7 +435,7 @@ public class CorrelationIdMiddlewareTests
         var context = new DefaultHttpContext();
         var nextCalled = false;
         RequestDelegate next = _ => { nextCalled = true; return Task.CompletedTask; };
-        
+
         var middleware = new CorrelationIdMiddleware(
             next,
             _mockLogger.Object,
@@ -456,7 +456,7 @@ public class CorrelationIdMiddlewareTests
         var context = new DefaultHttpContext();
         var testException = new InvalidOperationException("Test error");
         RequestDelegate next = _ => throw testException;
-        
+
         var middleware = new CorrelationIdMiddleware(
             next,
             _mockLogger.Object,
@@ -471,13 +471,13 @@ public class CorrelationIdMiddlewareTests
     public async Task InvokeAsync_WithIncludeInResponseFalse_ShouldNotAddToResponse()
     {
         // Arrange
-        var settings = new MiddlewareSettings 
-        { 
-            CorrelationId = new CorrelationIdSettings { IncludeInResponse = false } 
+        var settings = new MiddlewareSettings
+        {
+            CorrelationId = new CorrelationIdSettings { IncludeInResponse = false }
         };
         var middlewareSettingsNoResponse = Options.Create(settings);
         var context = new DefaultHttpContext();
-        
+
         var middleware = new CorrelationIdMiddleware(
             _ => Task.CompletedTask,
             _mockLogger.Object,
@@ -496,13 +496,13 @@ public class CorrelationIdMiddlewareTests
     {
         // Arrange
         const string customHeaderName = "X-Trace-Id";
-        var settings = new MiddlewareSettings 
-        { 
-            CorrelationId = new CorrelationIdSettings { HeaderName = customHeaderName } 
+        var settings = new MiddlewareSettings
+        {
+            CorrelationId = new CorrelationIdSettings { HeaderName = customHeaderName }
         };
         var middlewareSettingsCustom = Options.Create(settings);
         var context = new DefaultHttpContext();
-        
+
         var middleware = new CorrelationIdMiddleware(
             _ => Task.CompletedTask,
             _mockLogger.Object,

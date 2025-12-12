@@ -121,7 +121,7 @@ public class CorrelationIdMiddlewareSecurityTests
         // Arrange
         var context = new DefaultHttpContext();
         context.Request.Headers["X-Correlation-Id"] = "";
-        
+
         var middleware = new CorrelationIdMiddleware(
             _ => Task.CompletedTask,
             _mockLogger.Object,
@@ -143,7 +143,7 @@ public class CorrelationIdMiddlewareSecurityTests
         // Arrange
         var context = new DefaultHttpContext();
         context.Request.Headers["X-Correlation-Id"] = "   ";
-        
+
         var middleware = new CorrelationIdMiddleware(
             _ => Task.CompletedTask,
             _mockLogger.Object,
@@ -166,7 +166,7 @@ public class CorrelationIdMiddlewareSecurityTests
         const string specialCharsId = "test@special#chars$";
         var context = new DefaultHttpContext();
         context.Request.Headers["X-Correlation-Id"] = specialCharsId;
-        
+
         var middleware = new CorrelationIdMiddleware(
             _ => Task.CompletedTask,
             _mockLogger.Object,
@@ -191,7 +191,7 @@ public class CorrelationIdMiddlewareSecurityTests
         // Arrange
         var context = new DefaultHttpContext();
         context.Request.Headers["X-Correlation-Id"] = validId;
-        
+
         var middleware = new CorrelationIdMiddleware(
             _ => Task.CompletedTask,
             _mockLogger.Object,
@@ -228,7 +228,7 @@ public class MiddlewareIntegrationTests
                 _ => Task.CompletedTask,
                 mockLogger.Object,
                 middlewareSettings);
-            
+
             await middleware.InvokeAsync(context);
             correlationIds.Add(context.Response.Headers["X-Correlation-Id"].ToString());
         }

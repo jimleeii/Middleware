@@ -37,7 +37,7 @@ public class GlobalExceptionHandlerMiddlewareTests
         var context = new DefaultHttpContext();
         var nextCalled = false;
         RequestDelegate next = _ => { nextCalled = true; return Task.CompletedTask; };
-        
+
         var middleware = new GlobalExceptionHandlerMiddleware(
             next,
             _mockLogger.Object,
@@ -60,7 +60,7 @@ public class GlobalExceptionHandlerMiddlewareTests
         var context = new DefaultHttpContext();
         var testException = new Exception("Test error");
         RequestDelegate next = _ => throw testException;
-        
+
         var middleware = new GlobalExceptionHandlerMiddleware(
             next,
             _mockLogger.Object,
@@ -83,7 +83,7 @@ public class GlobalExceptionHandlerMiddlewareTests
         var context = new DefaultHttpContext();
         var testException = new ArgumentException("Invalid argument");
         RequestDelegate next = _ => throw testException;
-        
+
         var middleware = new GlobalExceptionHandlerMiddleware(
             next,
             _mockLogger.Object,
@@ -105,7 +105,7 @@ public class GlobalExceptionHandlerMiddlewareTests
         var context = new DefaultHttpContext();
         var testException = new ArgumentNullException("parameter");
         RequestDelegate next = _ => throw testException;
-        
+
         var middleware = new GlobalExceptionHandlerMiddleware(
             next,
             _mockLogger.Object,
@@ -127,7 +127,7 @@ public class GlobalExceptionHandlerMiddlewareTests
         var context = new DefaultHttpContext();
         var testException = new InvalidOperationException("Invalid operation");
         RequestDelegate next = _ => throw testException;
-        
+
         var middleware = new GlobalExceptionHandlerMiddleware(
             next,
             _mockLogger.Object,
@@ -149,7 +149,7 @@ public class GlobalExceptionHandlerMiddlewareTests
         var context = new DefaultHttpContext();
         var testException = new NotFoundException("Resource not found", "User");
         RequestDelegate next = _ => throw testException;
-        
+
         var middleware = new GlobalExceptionHandlerMiddleware(
             next,
             _mockLogger.Object,
@@ -171,7 +171,7 @@ public class GlobalExceptionHandlerMiddlewareTests
         var context = new DefaultHttpContext();
         var testException = new ConflictException("Resource already exists");
         RequestDelegate next = _ => throw testException;
-        
+
         var middleware = new GlobalExceptionHandlerMiddleware(
             next,
             _mockLogger.Object,
@@ -193,7 +193,7 @@ public class GlobalExceptionHandlerMiddlewareTests
         var context = new DefaultHttpContext();
         var testException = new ForbiddenException("Access denied");
         RequestDelegate next = _ => throw testException;
-        
+
         var middleware = new GlobalExceptionHandlerMiddleware(
             next,
             _mockLogger.Object,
@@ -216,7 +216,7 @@ public class GlobalExceptionHandlerMiddlewareTests
         var errors = new Dictionary<string, string[]> { { "Email", new[] { "Invalid email format" } } };
         var testException = new ValidationException("Validation failed", errors);
         RequestDelegate next = _ => throw testException;
-        
+
         var middleware = new GlobalExceptionHandlerMiddleware(
             next,
             _mockLogger.Object,
@@ -238,7 +238,7 @@ public class GlobalExceptionHandlerMiddlewareTests
         var context = new DefaultHttpContext();
         var testException = new BusinessRuleException("Business rule violated", "INSUFFICIENT_FUNDS");
         RequestDelegate next = _ => throw testException;
-        
+
         var middleware = new GlobalExceptionHandlerMiddleware(
             next,
             _mockLogger.Object,
@@ -264,7 +264,7 @@ public class GlobalExceptionHandlerMiddlewareTests
             await ctx.Response.WriteAsync("Started");
             throw testException;
         };
-        
+
         var middleware = new GlobalExceptionHandlerMiddleware(
             next,
             _mockLogger.Object,
@@ -283,7 +283,7 @@ public class GlobalExceptionHandlerMiddlewareTests
         var context = new DefaultHttpContext();
         var testException = new Exception("Test error");
         RequestDelegate next = _ => throw testException;
-        
+
         var middleware = new GlobalExceptionHandlerMiddleware(
             next,
             _mockLogger.Object,
@@ -307,7 +307,7 @@ public class GlobalExceptionHandlerMiddlewareTests
         context.TraceIdentifier = traceId;
         var testException = new Exception("Test error");
         RequestDelegate next = _ => throw testException;
-        
+
         var middleware = new GlobalExceptionHandlerMiddleware(
             next,
             _mockLogger.Object,
@@ -330,7 +330,7 @@ public class GlobalExceptionHandlerMiddlewareTests
         var context = new DefaultHttpContext();
         var testException = new Exception("Test error");
         RequestDelegate next = _ => throw testException;
-        
+
         var middleware = new GlobalExceptionHandlerMiddleware(
             next,
             _mockLogger.Object,
@@ -354,7 +354,7 @@ public class GlobalExceptionHandlerMiddlewareTests
         var context = new DefaultHttpContext();
         var testException = (Exception)Activator.CreateInstance(exceptionType, "Test error")!;
         RequestDelegate next = _ => throw testException;
-        
+
         var middleware = new GlobalExceptionHandlerMiddleware(
             next,
             _mockLogger.Object,
@@ -377,7 +377,7 @@ public class GlobalExceptionHandlerMiddlewareTests
         var innerException = new InvalidOperationException("Inner error");
         var testException = new Exception("Outer error", innerException);
         RequestDelegate next = _ => throw testException;
-        
+
         var middleware = new GlobalExceptionHandlerMiddleware(
             next,
             _mockLogger.Object,

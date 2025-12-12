@@ -19,7 +19,7 @@ public partial class CorrelationIdMiddleware(RequestDelegate next, ILogger<Corre
     private readonly RequestDelegate _next = next;
     private readonly ILogger<CorrelationIdMiddleware> _logger = logger;
     private readonly CorrelationIdSettings _settings = middlewareSettings.Value.CorrelationId;
-    
+
     // Allowed pattern: alphanumeric, hyphens, underscores only (prevents injection attacks)
     private static readonly Regex CorrelationIdPattern = CorrelationIdRegex();
 
@@ -56,7 +56,7 @@ public partial class CorrelationIdMiddleware(RequestDelegate next, ILogger<Corre
             !string.IsNullOrWhiteSpace(correlationId))
         {
             var providedId = correlationId.ToString();
-            
+
             // Validate the provided correlation ID
             if (IsValidCorrelationId(providedId))
             {
@@ -68,7 +68,7 @@ public partial class CorrelationIdMiddleware(RequestDelegate next, ILogger<Corre
                 }
                 return providedId;
             }
-            
+
             // Log security warning for invalid correlation ID
             if (_settings.LogInvalidIds && _logger.IsEnabled(LogLevel.Warning))
             {
@@ -91,7 +91,7 @@ public partial class CorrelationIdMiddleware(RequestDelegate next, ILogger<Corre
         }
         return newId;
     }
-    
+
     /// <summary>
     /// Validates a correlation ID to ensure it meets security requirements.
     /// </summary>
@@ -104,23 +104,23 @@ public partial class CorrelationIdMiddleware(RequestDelegate next, ILogger<Corre
         {
             return false;
         }
-        
+
         // Check for invalid characters (prevents header injection)
         if (!CorrelationIdPattern.IsMatch(correlationId))
         {
             return false;
         }
-        
+
         // Additional validation: check for common header injection patterns
         if (correlationId.Contains("\r") || correlationId.Contains("\n") ||
             correlationId.Contains("\0") || correlationId.Contains(":"))
         {
             return false;
         }
-        
+
         return true;
     }
-    
+
     /// <summary>
     /// Gets the client IP address from the request.
     /// </summary>
@@ -133,10 +133,10 @@ public partial class CorrelationIdMiddleware(RequestDelegate next, ILogger<Corre
         {
             return forwardedFor.Split(',')[0].Trim();
         }
-        
+
         return context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
     }
-    
+
     /// <summary>
     /// Sanitizes a value for safe logging by truncating and escaping special characters.
     /// </summary>
@@ -145,24 +145,24 @@ public partial class CorrelationIdMiddleware(RequestDelegate next, ILogger<Corre
     private static string SanitizeForLogging(string value)
     {
         const int maxLogLength = 50;
-        
+
         if (string.IsNullOrEmpty(value))
         {
             return "(empty)";
         }
-        
+
         // Truncate if too long
         var sanitized = value.Length > maxLogLength
             ? value[..maxLogLength] + "..."
             : value;
-        
+
         // Escape control characters for safe logging
         sanitized = sanitized
             .Replace("\r", "\\r")
             .Replace("\n", "\\n")
             .Replace("\t", "\\t")
             .Replace("\0", "\\0");
-        
+
         return sanitized;
     }
 

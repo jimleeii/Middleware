@@ -70,7 +70,7 @@ public class GlobalExceptionHandlerMiddleware(RequestDelegate next, ILogger<Glob
         context.Response.StatusCode = (int)statusCode;
 
         var includeDetails = _settings.IncludeExceptionDetails ?? _env.IsDevelopment();
-        
+
         var options = new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -92,33 +92,33 @@ public class GlobalExceptionHandlerMiddleware(RequestDelegate next, ILogger<Glob
         {
             // Custom API exceptions
             ApiException apiEx => (apiEx.StatusCode, apiEx.ErrorCode, apiEx.Message),
-            
+
             // Built-in .NET exceptions mapped to appropriate status codes
             ArgumentException or ArgumentNullException or ArgumentOutOfRangeException
                 => (HttpStatusCode.BadRequest, "INVALID_ARGUMENT", exception.Message),
-            
+
             InvalidOperationException
                 => (HttpStatusCode.BadRequest, "INVALID_OPERATION", exception.Message),
-            
+
             UnauthorizedAccessException
                 => (HttpStatusCode.Unauthorized, "UNAUTHORIZED", "Authentication required or access denied."),
-            
+
             NotImplementedException
                 => (HttpStatusCode.NotImplemented, "NOT_IMPLEMENTED", "This functionality is not yet implemented."),
-            
+
             TimeoutException
                 => (HttpStatusCode.RequestTimeout, "TIMEOUT", "The request timed out."),
-            
+
             OperationCanceledException
                 => (HttpStatusCode.RequestTimeout, "CANCELLED", "The operation was cancelled."),
-            
+
             KeyNotFoundException
                 => (HttpStatusCode.NotFound, "NOT_FOUND", "The requested resource was not found."),
-            
+
             // Server errors
             OutOfMemoryException
                 => (HttpStatusCode.InternalServerError, "OUT_OF_MEMORY", "The server ran out of memory processing your request."),
-            
+
             // Default to internal server error
             _ => (HttpStatusCode.InternalServerError, "INTERNAL_ERROR", "An unexpected error occurred while processing your request.")
         };
@@ -133,7 +133,7 @@ public class GlobalExceptionHandlerMiddleware(RequestDelegate next, ILogger<Glob
     private void LogException(Exception exception, string traceId, HttpStatusCode statusCode)
     {
         var statusCodeValue = (int)statusCode;
-        
+
         // Client errors (4xx) - log as warning
         if (statusCodeValue >= 400 && statusCodeValue < 500)
         {
@@ -175,7 +175,7 @@ public class GlobalExceptionHandlerMiddleware(RequestDelegate next, ILogger<Glob
     private Dictionary<string, object?> BuildErrorResponse(string traceId, string errorCode, string message, Exception exception)
     {
         var includeDetails = _settings.IncludeExceptionDetails ?? _env.IsDevelopment();
-        
+
         var response = new Dictionary<string, object?>
         {
             ["traceId"] = traceId,

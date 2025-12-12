@@ -26,15 +26,15 @@ public class ApiKeyAuthenticationHandler(
     private const string ApiKeyHeaderName = "X-API-Key";
     private readonly IConfiguration _configuration = configuration;
     private readonly AuthenticationSettings _authSettings = middlewareSettings.Value.Authentication;
-    
+
     // Rate limiting: Track failed attempts per IP address
     private static readonly ConcurrentDictionary<string, FailedAttemptInfo> _failedAttempts = new();
-    
+
     // Cleanup mechanism for rate limiting entries
     private static readonly object _cleanupLock = new object();
     private static CancellationTokenSource? _cleanupCancellation;
     private static Task? _cleanupTask;
-    
+
     /// <summary>
     /// Initializes the cleanup background task on first usage.
     /// </summary>
@@ -42,7 +42,7 @@ public class ApiKeyAuthenticationHandler(
     {
         StartCleanupTask();
     }
-    
+
     /// <summary>
     /// Starts the background cleanup task for expired rate limit entries.
     /// </summary>
@@ -55,12 +55,12 @@ public class ApiKeyAuthenticationHandler(
             {
                 return;
             }
-            
+
             _cleanupCancellation = new CancellationTokenSource();
             _cleanupTask = Task.Run(() => CleanupExpiredEntriesAsync(_cleanupCancellation.Token), _cleanupCancellation.Token);
         }
     }
-    
+
     /// <summary>
     /// Periodically cleans up expired rate limit entries from the dictionary.
     /// This prevents unbounded memory growth in long-running applications.
@@ -69,22 +69,22 @@ public class ApiKeyAuthenticationHandler(
     {
         // Cleanup interval: Check every 5 minutes
         const int cleanupIntervalMinutes = 5;
-        
+
         try
         {
             while (!cancellationToken.IsCancellationRequested)
             {
                 await Task.Delay(TimeSpan.FromMinutes(cleanupIntervalMinutes), cancellationToken).ConfigureAwait(false);
-                
+
                 var now = DateTime.UtcNow;
                 var keysToRemove = new List<string>();
-                
+
                 // Find all entries that have expired (beyond any possible rate limit window)
                 // We use a conservative cleanup window of 24 hours to ensure we don't remove
                 // entries that might still be within the configured rate limit window
                 const int maxCleanupWindowHours = 24;
                 var cleanupThreshold = now.AddHours(-maxCleanupWindowHours);
-                
+
                 foreach (var kvp in _failedAttempts)
                 {
                     if (kvp.Value.FirstAttemptTime < cleanupThreshold)
@@ -92,7 +92,7 @@ public class ApiKeyAuthenticationHandler(
                         keysToRemove.Add(kvp.Key);
                     }
                 }
-                
+
                 // Remove the expired entries
                 foreach (var key in keysToRemove)
                 {
@@ -117,7 +117,7 @@ public class ApiKeyAuthenticationHandler(
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
         var clientIp = GetClientIpAddress();
-        
+
         // Check rate limiting
         if (IsRateLimited(clientIp, _authSettings))
         {
@@ -129,7 +129,7 @@ public class ApiKeyAuthenticationHandler(
             }
             return AuthenticateResult.Fail("Too many failed authentication attempts. Please try again later.");
         }
-        
+
         if (!Request.Headers.TryGetValue(ApiKeyHeaderName, out StringValues value))
         {
             RecordFailedAttempt(clientIp, _authSettings);
@@ -137,7 +137,7 @@ public class ApiKeyAuthenticationHandler(
         }
 
         var providedApiKey = value.ToString();
-        
+
         // Get API keys from configuration (supports both appsettings and environment variables)
         // Priority: Environment variable > Configuration file
         var validApiKeys = GetValidApiKeys();
@@ -152,25 +152,25 @@ public class ApiKeyAuthenticationHandler(
         if (!IsValidApiKey(providedApiKey, validApiKeys))
         {
             RecordFailedAttempt(clientIp, _authSettings);
-            
+
             if (Logger.IsEnabled(LogLevel.Warning))
             {
                 var attemptInfo = _failedAttempts.GetValueOrDefault(clientIp);
                 var attemptCount = attemptInfo?.Count ?? 1;
-                
+
                 Logger.LogWarning(
                     "Invalid API key attempt #{AttemptCount} from {IpAddress}. {RemainingAttempts} attempts remaining before rate limit.",
                     attemptCount,
                     clientIp,
                     Math.Max(0, _authSettings.MaxFailedAttempts - attemptCount));
             }
-            
+
             return AuthenticateResult.Fail("Invalid API Key");
         }
 
         // Successful authentication - clear any failed attempts
         ClearFailedAttempts(clientIp);
-        
+
         if (_authSettings.LogSuccessfulAuthentications && Logger.IsEnabled(LogLevel.Information))
         {
             Logger.LogInformation("Successful API key authentication from {IpAddress}", clientIp);
@@ -209,7 +209,7 @@ public class ApiKeyAuthenticationHandler(
 
         return [];
     }
-    
+
     /// <summary>
     /// Validates the provided API key against valid keys using constant-time comparison.
     /// This prevents timing attacks that could reveal information about valid API keys.
@@ -223,28 +223,28 @@ public class ApiKeyAuthenticationHandler(
         {
             return false;
         }
-        
+
         var providedKeyBytes = Encoding.UTF8.GetBytes(providedKey);
-        
+
         foreach (var validKey in validKeys)
         {
             if (string.IsNullOrEmpty(validKey))
             {
                 continue;
             }
-            
+
             var validKeyBytes = Encoding.UTF8.GetBytes(validKey);
-            
+
             // Use constant-time comparison to prevent timing attacks
             if (CryptographicOperations.FixedTimeEquals(providedKeyBytes, validKeyBytes))
             {
                 return true;
             }
         }
-        
+
         return false;
     }
-    
+
     /// <summary>
     /// Gets the client IP address from the request.
     /// </summary>
@@ -258,10 +258,10 @@ public class ApiKeyAuthenticationHandler(
             // Take the first IP if multiple are present
             return forwardedFor.Split(',')[0].Trim();
         }
-        
+
         return Request.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
     }
-    
+
     /// <summary>
     /// Checks if the given IP address is currently rate limited.
     /// </summary>
@@ -274,9 +274,9 @@ public class ApiKeyAuthenticationHandler(
         {
             return false;
         }
-        
+
         var rateLimitWindow = TimeSpan.FromMinutes(settings.RateLimitWindowMinutes);
-        
+
         // Check if the rate limit window has expired
         if (DateTime.UtcNow - attemptInfo.FirstAttemptTime > rateLimitWindow)
         {
@@ -284,10 +284,10 @@ public class ApiKeyAuthenticationHandler(
             _failedAttempts.TryRemove(ipAddress, out _);
             return false;
         }
-        
+
         return attemptInfo.Count >= settings.MaxFailedAttempts;
     }
-    
+
     /// <summary>
     /// Records a failed authentication attempt for the given IP address.
     /// </summary>
@@ -296,7 +296,7 @@ public class ApiKeyAuthenticationHandler(
     private static void RecordFailedAttempt(string ipAddress, AuthenticationSettings settings)
     {
         var rateLimitWindow = TimeSpan.FromMinutes(settings.RateLimitWindowMinutes);
-        
+
         _failedAttempts.AddOrUpdate(
             ipAddress,
             _ => new FailedAttemptInfo { Count = 1, FirstAttemptTime = DateTime.UtcNow },
@@ -307,11 +307,11 @@ public class ApiKeyAuthenticationHandler(
                 {
                     return new FailedAttemptInfo { Count = 1, FirstAttemptTime = DateTime.UtcNow };
                 }
-                
+
                 return existing with { Count = existing.Count + 1 };
             });
     }
-    
+
     /// <summary>
     /// Clears failed authentication attempts for the given IP address.
     /// </summary>
@@ -320,7 +320,7 @@ public class ApiKeyAuthenticationHandler(
     {
         _failedAttempts.TryRemove(ipAddress, out _);
     }
-    
+
     /// <summary>
     /// Gets the current number of tracked rate limit entries.
     /// Useful for monitoring memory usage.
@@ -330,7 +330,7 @@ public class ApiKeyAuthenticationHandler(
     {
         return _failedAttempts.Count;
     }
-    
+
     /// <summary>
     /// Stops the cleanup background task.
     /// Should be called during application shutdown.
@@ -340,7 +340,7 @@ public class ApiKeyAuthenticationHandler(
         if (_cleanupCancellation != null)
         {
             _cleanupCancellation.Cancel();
-            
+
             if (_cleanupTask != null)
             {
                 try
@@ -352,7 +352,7 @@ public class ApiKeyAuthenticationHandler(
                     // Expected
                 }
             }
-            
+
             _cleanupCancellation.Dispose();
         }
     }
